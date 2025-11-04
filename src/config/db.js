@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv"
+
+dotenv.config();
 
 export async function connectDb() {
     const useTest = process.env.NODE_ENV === "test" || process.env.USE_TEST_DB === "true";

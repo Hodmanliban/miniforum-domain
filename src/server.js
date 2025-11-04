@@ -7,6 +7,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { connectDb } from "./config/db.js";
+import { likesRouter } from "./routes/likesRoutes.js"; // <-- import här
 
 const app = express();
 
@@ -19,16 +20,21 @@ app.use(morgan("dev"));
 
 // --- Health check ---
 app.get("/health", (_req, res) => {
-    res.json({ ok: true, service: "miniforum-domain", time: new Date().toISOString() });
+  res.json({
+    ok: true,
+    service: "miniforum-domain",
+    time: new Date().toISOString(),
+  });
 });
 
-// --- TODO: dina routes här ---
-// app.use("/api/posts", postsRouter);
+// --- Dina routes här ---
+app.use("/api/likes", likesRouter); // <-- GLÖM INTE SNEDSTRECKET!
 
 const PORT = process.env.PORT || 4000;
 
+// --- Starta servern ---
 connectDb().then(() => {
-    app.listen(PORT, () => {
-        console.log(`🚀 Domain backend running on port ${PORT}`);
-    });
+  app.listen(PORT, () => {
+    console.log(`🚀 Domain backend running on port ${PORT}`);
+  });
 });
