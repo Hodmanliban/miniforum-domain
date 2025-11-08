@@ -8,6 +8,9 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { connectDb } from "./config/db.js";
 import { likesRouter } from "./routes/likesRoutes.js"; // <-- import här
+import { followsRouter } from "./routes/followsRoutes.js";
+import { sharesRouter } from "./routes/sharesRoutes.js";
+
 
 const app = express();
 
@@ -17,6 +20,8 @@ app.use(cors({ origin: true, credentials: true })); // tillåt frontend under de
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
+app.use("/api/follows", followsRouter);
+app.use("/api/shares", sharesRouter);
 
 // --- Health check ---
 app.get("/health", (_req, res) => {
