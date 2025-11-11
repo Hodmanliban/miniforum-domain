@@ -26,6 +26,10 @@ const allowedOrigins = [
   "https://miniforum123.netlify.app",
 ];
 
+if (process.env.CLIENT_URL && !allowedOrigins.includes(process.env.CLIENT_URL)) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
+
 // --- Socket.IO Setup med strikt CORS ---
 export const io = new Server(httpServer, {
   cors: {
