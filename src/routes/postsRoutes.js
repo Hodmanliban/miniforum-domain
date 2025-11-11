@@ -1,6 +1,7 @@
 import express from "express";
-import { authMiddleware, optionalAuth } from "../../middlewares/authMiddleware.js";
+import { authMiddleware } from "../../middlewares/authMiddleware.js";
 import {
+    getFeedPosts,
     createPost,
     getAllPosts,
     getPostById,
@@ -11,7 +12,7 @@ import {
 
 const router = express.Router();
 
-// All routes require authentication
+router.get("/feed", authMiddleware, getFeedPosts);
 router.get("/", authMiddleware, getAllPosts);
 router.get("/user/:userId", authMiddleware, getUserPosts);
 router.get("/:id", authMiddleware, getPostById);

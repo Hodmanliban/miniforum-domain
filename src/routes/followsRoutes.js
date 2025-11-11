@@ -1,9 +1,10 @@
 import express from "express";
-import { addFollow, removeFollow, getFollowers, getFollowing } from "../controllers/followsController.js";
+import { proxyToggleFollow, proxyGetFollowers, proxyGetFollowing } from "../controllers/followController.js";
+import { authMiddleware } from "../../middlewares/authMiddleware.js";
+const router = express.Router();
 
-export const followsRouter = express.Router();
+router.post("/:userId/follow", authMiddleware, proxyToggleFollow);
+router.get("/:userId/followers", authMiddleware, proxyGetFollowers);
+router.get("/:userId/following", authMiddleware, proxyGetFollowing);
 
-followsRouter.post("/", addFollow);
-followsRouter.delete("/", removeFollow);
-followsRouter.get("/followers/:userId", getFollowers);
-followsRouter.get("/following/:userId", getFollowing);
+export default router;

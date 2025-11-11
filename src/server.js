@@ -10,11 +10,12 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { connectDb } from "./config/db.js";
 import { likesRouter } from "./routes/likesRoutes.js";
-import { followsRouter } from "./routes/followsRoutes.js";
+import followsRouter from "./routes/followsRoutes.js";
 import { sharesRouter } from "./routes/sharesRoutes.js";
 import postsRouter from "./routes/postsRoutes.js";
 import gdprRouter from "./routes/gdprRoutes.js";
 import { setupSocketHandlers } from "./socket/socketHandler.js";
+import searchRouter from "./routes/searchRoutes.js";
 
 
 const app = express();
@@ -42,9 +43,10 @@ app.use(morgan("dev"));
 // --- Routes ---
 app.use("/api/posts", postsRouter);
 app.use("/api/likes", likesRouter);
-app.use("/api/follows", followsRouter);
+app.use("/api/follow", followsRouter);
 app.use("/api/shares", sharesRouter);
 app.use("/api/gdpr", gdprRouter);
+app.use("/api/search", searchRouter); // Korrekt!
 
 // --- Health check ---
 app.get("/health", (_req, res) => {
