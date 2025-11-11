@@ -17,25 +17,54 @@ import gdprRouter from "./routes/gdprRoutes.js";
 import { setupSocketHandlers } from "./socket/socketHandler.js";
 import searchRouter from "./routes/searchRoutes.js";
 
-
 const app = express();
 const httpServer = createServer(app);
 
-// --- Socket.IO Setup ---
+// --- Tillåtna frontend-domäner ---
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://miniforum123.netlify.app",
+];
+
+// --- Socket.IO Setup med strikt CORS ---
 export const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "https://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`🚫 Blocked by Socket.IO CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"]
-  }
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
 });
 
 // Setup socket handlers
 setupSocketHandlers(io);
 
-// --- Middleware (basic) ---
+// --- Middleware ---
 app.use(helmet());
-app.use(cors({ origin: true, credentials: true })); // tillåt frontend under dev
+
+// 🧩 Säker CORS-konfiguration för Express API
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`🚫 Blocked by Express CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
@@ -46,7 +75,7 @@ app.use("/api/likes", likesRouter);
 app.use("/api/follow", followsRouter);
 app.use("/api/shares", sharesRouter);
 app.use("/api/gdpr", gdprRouter);
-app.use("/api/search", searchRouter); // Korrekt!
+app.use("/api/search", searchRouter);
 
 // --- Health check ---
 app.get("/health", (_req, res) => {
@@ -63,6 +92,7 @@ const PORT = process.env.PORT || 4000;
 connectDb().then(() => {
   httpServer.listen(PORT, () => {
     console.log(`🚀 Domain backend running on port ${PORT}`);
+    console.log(`🌍 Allowed origins: ${allowedOrigins.join(", ")}`);
     console.log(`🔌 Socket.IO server ready`);
   });
 });
